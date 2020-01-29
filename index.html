@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html>
+  <head>
+
+    <style>
+      #main {
+        width: 600px;
+        margin: auto;
+      }
+
+      #titanic-1 > div {
+        transition: 400ms;
+      }
+
+      #titanic-1.hide-died > .died {
+        opacity: 0 !important;
+      }
+
+      #titanic-1.hide-suvived > .died {
+        opacity: 0 !important;
+      }
+
+    </style>
+  </head>
+
+<body>
+
+  <div id="main">
+    <div>
+      <div id="titanic-1"></div>
+      <p>All passengers</p>
+    </div>
+
+    <div>
+      <div id="titanic-2"></div>
+      <p>Men</p>
+    </div>
+
+    <div>
+      <div id="titanic-3"></div>
+      <p>Women</p>
+    </div>
+
+    <div>
+      <div id="titanic-4"></div>
+      <p>Embarked All</p>
+    </div>
+
+    <div>
+      <div id="titanic-5"></div>
+      <p>Embarked women</p>
+    </div>
+
+    <div>
+      <div id="titanic-6"></div>
+      <p>Embarked men</p>
+    </div>
+
+    <div>
+      <div id="titanic-7"></div>
+      <p>First Class</p>
+    </div>
+
+    <div>
+      <div id="titanic-8"></div>
+      <p>Second Class</p>
+    </div>
+
+    <div>
+      <div id="titanic-9"></div>
+      <p>Third Class</p>
+    </div>
+  </div>
+
+<script>
+// --------------------------------------------
+
+  // Get a reference to div#content
+  // This is where we will add dynamic elements
+
+  fetch('titanic-passengers.json')
+      .then(res => res.json())
+      .then(json => handleData(json))
+      .catch(err => console.log(err.message))
+
+  function handleData(data) {
+    // Get an array of relevant objects from the data
+    const fields = data.map(({ fields }) => fields)
+
+    const fieldsMen = fields.filter((p) => p.sex === 'male')
+    const fieldsWomen = fields.filter((p) =>  p.sex === 'female')
+
+    fields.sort((a, b) => {
+      return a.survived === 'No'
+    })
+
+    fieldsMen.sort((a, b) => {
+      return a.survived === 'No'
+    })
+
+    fieldsWomen.sort((a, b) => {
+      return a.survived === 'No'
+    })
+    
+    renderAllPassengers(fields, 'titanic-1')
+    renderAllPassengers(fieldsMen, 'titanic-2')
+    renderAllPassengers(fieldsWomen, 'titanic-3')
+
+    renderAllPassengers(fields.filter(p => p.pclass === 1), 'titanic-7')
+    renderAllPassengers(fields.filter(p => p.pclass === 2), 'titanic-8')
+    renderAllPassengers(fields.filter(p => p.pclass === 3), 'titanic-9')
+
+    fields.sort((a, b) => {
+      const x = a.embarked !== undefined ? a.embarked.charCodeAt(0) : 0
+      const y = b.embarked !== undefined ? b.embarked.charCodeAt(0) : 0
+      console.log(x)
+      return x - y
+    })
+
+    renderEmbarked(fields, 'titanic-4')
+
+    renderEmbarked(fields.filter(p => p.sex === 'female'), 'titanic-5')
+    renderEmbarked(fields.filter(p => p.sex === 'male'), 'titanic-6')
+
+  }
+
+  function renderAllPassengers(fields, id) {
+    const content = document.getElementById(id)
+    // make a DOM element for each passenger
+    fields.forEach(passenger => {
+        // Make an element
+        const el = document.createElement('div')
+        // Attach the element to the dom
+        content.appendChild(el)
+
+        // Add some class names 
+        const gender = passenger.sex
+        const survived = passenger.survived === 'Yes' ? 'survived' : 'died'
+        
+        el.classList.add(gender)
+        el.classList.add(survived)
+
+        // Style the element
+        el.style.width = '12px'
+        el.style.height = '12px'
+        
+        el.innerHTML = passenger.embarked !== undefined ? passenger.embarked : '?' 
+        el.style.fontSize = '10px'
+        el.style.textAlign = 'center'
+
+        // el.style.transform = 'rotate(45deg)'
+
+        // Lesson to point above
+        // Then follow through with
+        el.style.margin = '1px'
+        el.style.backgroundColor = passenger.sex === 'male' ? 'cornflowerblue' : 'pink'
+        el.style.borderRadius = passenger.survived === 'No' ? '50%' : 'none'
+        el.style.opacity = passenger.survived === 'No' ? '0.5' : '1.0'
+    });
+
+    // Style content
+    content.style.display = 'flex'
+    content.style.flexWrap = 'wrap'
+    content.style.width = '600px'
+    content.style.margin = 'auto'
+  }
+
+
+  function renderEmbarked(fields, id) {
+    const content = document.getElementById(id)
+    // make a DOM element for each passenger
+    fields.forEach(passenger => {
+        // Make an element
+        const el = document.createElement('div')
+        // Attach the element to the dom
+        content.appendChild(el)
+        // Style the element
+        el.style.width = '12px'
+        el.style.height = '12px'
+        
+        el.innerHTML = passenger.embarked !== undefined ? passenger.embarked : '?' 
+        el.style.fontSize = '10px'
+        el.style.textAlign = 'center'
+
+        // el.style.transform = 'rotate(45deg)'
+
+        // Lesson to point above
+        // Then follow through with
+        el.style.margin = '1px'
+        let color = 'red'
+        switch(passenger.embarked) {
+          case 'C':
+            color = 'cyan'
+            break
+          case 'S':
+            color = 'orange'
+            break
+          case 'Q':
+            color = "magenta"
+            break
+          default: 
+            color = 'gray'
+        }
+        el.style.backgroundColor = color
+        el.style.borderRadius = passenger.survived === 'No' ? '50%' : 'none'
+        el.style.opacity = passenger.survived === 'No' ? '0.5' : '1.0'
+    });
+
+    // Style content
+    content.style.display = 'flex'
+    content.style.flexWrap = 'wrap'
+    content.style.width = '600px'
+    content.style.margin = 'auto'
+  }
+
+
+</script>
+</body>
+</html>
